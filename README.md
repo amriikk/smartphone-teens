@@ -1,9 +1,5 @@
 # 📱 Predicting Teen Mental Health Crisis via Phone Usage
 
-## Title
-
-### Team:
-
 **The Solution:** Acting as a Data Science Consulting Team, we are building a **Classification Model** to predict high-risk teens ("Crisis" vs. "Non-Crisis") based on daily phone usage patterns, sleep metrics, and social interaction data.
 
 **The Impact:** Our goal is to shift from reactive claims coverage to preventative care. By achieving a target **Recall of 90%+**, we aim to trigger low-cost interventions (e.g., wellness coaching, parental alerts) *before* a clinical crisis occurs. This prioritizes minimizing false negatives, as missing a high-risk teen carries a much higher cost than flagging a healthy one.
