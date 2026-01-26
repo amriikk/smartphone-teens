@@ -319,52 +319,64 @@ class DataQualityReport:
         print("\n" + "=" * 60)
         print("DUPLICATE ANALYSIS")
         print("=" * 60)
-        
+
         # Exact duplicates
         exact_duplicates = self.df.duplicated().sum()
         exact_dup_pct = (exact_duplicates / len(self.df)) * 100
-        
-        # Get examples of duplicates
-        dup_examples = []
-        if exact_duplicates > 0:
-            dup_mask = self.df.duplicated(keep=False)
-            dup_df = self.df[dup_mask].head(10)
-            dup_examples = dup_df.to_dict('records')
-        
-        # Check for near-duplicates on key columns (if identifiable)
-        potential_key_cols = []
+
+        # Check for duplicates in identifier columns (ID, Name, Name+Location)
+        identifier_cols = []
         for col in self.df.columns:
             col_lower = col.lower()
-            if any(key in col_lower for key in ['id', 'key', 'code', 'number', 'email']):
-                potential_key_cols.append(col)
-        
-        key_col_duplicates = {}
-        for col in potential_key_cols[:5]:  # Limit to 5 potential key columns
+            if col_lower in ['id', 'name'] or col_lower.endswith('_id') or col_lower.endswith('_name'):
+                identifier_cols.append(col)
+
+        identifier_duplicates = {}
+        for col in identifier_cols:
             dup_count = self.df[col].duplicated().sum()
-            if dup_count > 0:
-                key_col_duplicates[col] = dup_count
-        
+            identifier_duplicates[col] = {
+                'duplicates': dup_count,
+                'unique_count': self.df[col].nunique(),
+                'total_count': len(self.df)
+            }
+
+        # Check Name + Location combination for better duplicate detection
+        if 'Name' in self.df.columns and 'Location' in self.df.columns:
+            combined = self.df['Name'].astype(str) + ' | ' + self.df['Location'].astype(str)
+            dup_count = combined.duplicated().sum()
+            identifier_duplicates['Name + Location'] = {
+                'duplicates': dup_count,
+                'unique_count': combined.nunique(),
+                'total_count': len(self.df)
+            }
+            identifier_cols.append('Name + Location')
+
         self.report_data['duplicates'] = {
             'exact_duplicates': int(exact_duplicates),
             'exact_duplicate_pct': round(exact_dup_pct, 2),
-            'potential_key_columns': potential_key_cols,
-            'key_column_duplicates': key_col_duplicates,
-            'examples': dup_examples[:5]
+            'identifier_columns': identifier_cols,
+            'identifier_duplicates': identifier_duplicates
         }
-        
+
         # Print summary
         print(f"\n📊 Exact Duplicate Rows: {exact_duplicates:,} ({exact_dup_pct:.2f}%)")
-        
+
         if exact_duplicates > 0:
             print(f"   ⚠️  These rows will bias your model if not removed!")
         else:
             print("   ✅ No exact duplicate rows found")
-        
-        if key_col_duplicates:
-            print(f"\n📋 Potential Key Column Duplicates:")
-            for col, count in key_col_duplicates.items():
-                print(f"   - {col}: {count:,} duplicates")
-        
+
+        if identifier_cols:
+            print(f"\n📋 Identifier Column Analysis:")
+            for col, info in identifier_duplicates.items():
+                unique = info['unique_count']
+                total = info['total_count']
+                dups = info['duplicates']
+                if dups > 0:
+                    print(f"   ⚠️  {col}: {unique:,} unique values out of {total:,} rows ({dups:,} duplicates)")
+                else:
+                    print(f"   ✅ {col}: {unique:,} unique values (no duplicates)")
+
         return self.report_data['duplicates']
     
     # =========================================================================
@@ -763,15 +775,7 @@ class DataQualityReport:
                 </div>
             </div>
             
-            {f'''
-            <div class="summary-section">
-                <h4>⚠️ Key Column Duplicates Detected</h4>
-                <p>These columns appear to be identifiers but contain duplicate values:</p>
-                <ul>
-                    {''.join(f"<li><strong>{col}</strong>: {count:,} duplicates</li>" for col, count in self.report_data['duplicates']['key_column_duplicates'].items())}
-                </ul>
-            </div>
-            ''' if self.report_data['duplicates']['key_column_duplicates'] else ''}
+            {self._generate_identifier_duplicates_html()}
             
             {f'''
             <div class="summary-section" style="background: #ffebee;">
@@ -912,6 +916,60 @@ class DataQualityReport:
             recommendations.append("<li>✅ Data quality looks good! Proceed with your analysis.</li>")
 
         return '\n'.join(recommendations)
+
+    def _generate_identifier_duplicates_html(self) -> str:
+        """Generate HTML for identifier column duplicate analysis."""
+        identifier_duplicates = self.report_data['duplicates'].get('identifier_duplicates', {})
+
+        if not identifier_duplicates:
+            return ""
+
+        rows_html = ""
+        has_duplicates = False
+
+        for col, info in identifier_duplicates.items():
+            dups = info['duplicates']
+            unique = info['unique_count']
+            total = info['total_count']
+
+            if dups > 0:
+                has_duplicates = True
+                status = '<span class="badge badge-danger">Has Duplicates</span>'
+            else:
+                status = '<span class="badge badge-success">Unique</span>'
+
+            rows_html += f"""
+            <tr>
+                <td>{col}</td>
+                <td>{unique:,}</td>
+                <td>{total:,}</td>
+                <td>{dups:,}</td>
+                <td>{status}</td>
+            </tr>
+            """
+
+        warning_style = "background: #fff3e0;" if has_duplicates else ""
+
+        return f"""
+        <div class="summary-section" style="{warning_style}">
+            <h4>{'⚠️' if has_duplicates else '✅'} Identifier Column Analysis</h4>
+            <p>Checking columns that should uniquely identify each record (ID, Name):</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Unique Values</th>
+                        <th>Total Rows</th>
+                        <th>Duplicates</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows_html}
+                </tbody>
+            </table>
+        </div>
+        """
 
     def _generate_categorical_html(self) -> str:
         """Generate HTML for categorical values analysis."""
