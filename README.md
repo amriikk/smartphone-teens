@@ -14,7 +14,7 @@
 
 ## 👥 The Team (TMP 422 - Data & Decision Analytics)
 
-![alt text](./images/team.png)
+![Data Science Team](./images/team.png)
 
 | Name | Role | Responsibility |
 |------|------|----------------|
