@@ -13,6 +13,9 @@
 ---
 
 ## 👥 The Team (TMP 422 - Data & Decision Analytics)
+
+![alt text](./images/team.png)
+
 | Name | Role | Responsibility |
 |------|------|----------------|
 | [**Jeitī Trujillo**](https://www.linkedin.com/in/jeiti/) | Project Manager | Strategy, ROI analysis, stakeholder alignment, deck ownership. |
