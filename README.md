@@ -1,6 +1,8 @@
 # 📱 Predicting Teen Mental Health Crisis via Phone Usage
 **Project Type:** Classification (Random Forest) | **Client:** Health Insurance Provider
 
+![CRISP-DM Framework](./images/CRISP-DM.png)
+
 ## 🎯 Executive Summary
 **The Problem:** Teen mental health crises are rising and expensive. A single "Crisis Episode" (e.g., ER visit, inpatient care) costs our insurer client **$2,673**. The current industry standard—flagging teens who use phones >5 hours/day—is reactive and fails to detect **34%** of high-risk cases.
 

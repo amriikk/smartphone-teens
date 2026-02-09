@@ -71,7 +71,7 @@ input_data = pd.DataFrame([[daily_usage, sleep_hours, phone_checks, apps_used, s
 # Get Probability
 prob = model.predict_proba(input_data)[0][1]
 
-# Apply YOUR Strategy (Threshold Tuning)
+# Apply Strategy (Threshold Tuning)
 threshold = 0.40  # The defensive threshold you chose
 is_risk = prob >= threshold
 
