@@ -15,12 +15,12 @@
 ## 👥 The Team (TMP 422 - Data & Decision Analytics)
 | Name | Role | Responsibility |
 |------|------|----------------|
-| **Jeitī Trujillo** | Project Manager | Strategy, ROI analysis, stakeholder alignment, deck ownership. |
-| **Octavio Gzain** | Technical Lead | Architecture decisions, GitHub repo management, code review. |
-| **Aishwarya Mundada** | Lead Modeler | Algorithm selection (Random Forest), hyperparameter tuning. |
-| **Chinmaiye Gandhi** | Data Engineer | Data cleaning, pipeline construction, feature engineering. |
-| **Maya Parra** | Business Analyst | Unit economics, business value proposition, storytelling. |
-| **Mohammad Ameen** | Quality Assurance | Error analysis, bias auditing, assumption testing. |
+| [**Jeitī Trujillo**](https://www.linkedin.com/in/jeiti/) | Project Manager | Strategy, ROI analysis, stakeholder alignment, deck ownership. |
+| [**Octavio Gzain**](https://www.linkedin.com/in/octavio-gzain/) | Technical Lead | Architecture decisions, GitHub repo management, code review. |
+| [**Aishwarya Mundada**](https://www.linkedin.com/in/aishwarya-mundada/) | Lead Modeler | Algorithm selection (Random Forest), hyperparameter tuning. |
+| [**Chinmaiye Gandhi**](https://www.linkedin.com/in/chinmaiye/) | Data Engineer | Data cleaning, pipeline construction, feature engineering. |
+| [**Maya Parra**](https://www.linkedin.com/in/maya-parra/) | Business Analyst | Unit economics, business value proposition, storytelling. |
+| [**Mohammad Ameen**](https://www.linkedin.com/in/mohammadmameen/) | Quality Assurance | Error analysis, bias auditing, assumption testing. |
 
 ---
 
