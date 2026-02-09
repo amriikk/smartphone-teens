@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 import streamlit.components.v1 as components
+import os
 
 # --- 1. PAGE CONFIGURATION ---
 st.set_page_config(
@@ -25,11 +26,13 @@ def load_and_train_model():
     Loads data, trains the Random Forest model on the fly, and returns it.
     This function is cached so it only runs once per session.
     """
-    # Load dataset
-    try:
-        df = pd.read_csv('.data/teen_phone_addiction_dataset.csv')
-    except FileNotFoundError:
+    # CORRECTED PATH: Looking inside the 'data' folder
+    file_path = 'data/teen_phone_addiction_dataset.csv'
+    
+    if not os.path.exists(file_path):
         return None, None
+
+    df = pd.read_csv(file_path)
 
     # Target Definition (Crisis = Addiction Score > 9.5)
     df['High_Risk'] = np.where(df['Addiction_Level'] > 9.5, 1, 0)
@@ -56,7 +59,7 @@ def load_and_train_model():
 model, feature_cols = load_and_train_model()
 
 if model is None:
-    st.error("🚨 Error: 'teen_phone_addiction_dataset.csv' not found. Please add it to the repo.")
+    st.error("🚨 Error: Dataset not found. Please ensure 'data/teen_phone_addiction_dataset.csv' exists.")
     st.stop()
 
 # --- 4. LAYOUT: TABS ---
@@ -133,9 +136,13 @@ with tab2:
     st.header("Data Quality Audit (Phase 2)")
     st.write("This report validates the integrity of the 3,000-teen dataset used to train the model.")
     
-    # Embed the HTML File
+    # Path Logic: Try root first, then reports folder
+    report_path = "teen_phone_addiction_dataset_quality_report.html"
+    if not os.path.exists(report_path):
+        report_path = "reports/teen_phone_addiction_dataset_quality_report.html"
+
     try:
-        with open("teen_phone_addiction_dataset_quality_report.html", 'r', encoding='utf-8') as f:
+        with open(report_path, 'r', encoding='utf-8') as f:
             report_html = f.read()
         
         # Display HTML
@@ -149,4 +156,4 @@ with tab2:
             mime="text/html"
         )
     except FileNotFoundError:
-        st.warning("⚠️ Report file not found. Please run 'data_quality_report.py' locally and upload the HTML file to this repo.")
+        st.warning("⚠️ Report file not found. Please ensure the HTML report is in the root or 'reports/' folder.")
