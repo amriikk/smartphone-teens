@@ -1,51 +1,6 @@
 # 📱 Predicting Teen Mental Health Crisis via Phone Usage
 **Project Type:** Classification (Random Forest) | **Client:** Health Insurance Provider
 
-graph TD
-    %% Styling Definitions
-    classDef business fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef data fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    classDef model fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef deploy fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
-    classDef value fill:#ffccbc,stroke:#d84315,stroke-width:2px,stroke-dasharray: 5 5;
-
-    subgraph Phase1 [Phase 1: Business Understanding]
-        A[<b>Goal</b>: Reduce Crisis Claims] --> B(Cost of Crisis: $2,673)
-        B --> C(Cost of Prevention: $200)
-        C --> D{Strategy: Optimize Recall}
-    end
-
-    subgraph Phase2 [Phase 2: Data Prep & Engineering]
-        E[Raw Data: 3,000 Teens] --> F[Feature Engineering]
-        F --> G(Usage-to-Sleep Ratio)
-        F --> H(App Diversity / Switching)
-        F --> I(Social Media Duration)
-    end
-
-    subgraph Phase3 [Phase 3: Modeling & Tuning]
-        J[Random Forest Classifier] --> K{Threshold Tuning}
-        K -- Default 0.5 --> L[Recall: 88% <br> Missed 12% of Risk]
-        K -- <b>Tuned 0.40</b> --> M[<b>Recall: 92%</b> <br> Defensive Safety Net]
-    end
-
-    subgraph Phase4 [Phase 4: Deployment & ROI]
-        M --> N{Is Risk > 40%?}
-        N -- Yes --> O[Trigger Wellness Check]
-        N -- No --> P[No Action]
-        O --> Q[<b>Net Value Lift</b> <br> +$377,512 vs Baseline]
-    end
-
-    %% Connections
-    D --> E
-    I --> J
-    
-    %% Apply Styles
-    class A,B,C,D business;
-    class E,F,G,H,I data;
-    class J,K,L,M model;
-    class N,O,P deploy;
-    class Q value;
-
 ## 🎯 Executive Summary
 **The Problem:** Teen mental health crises are rising and expensive. A single "Crisis Episode" (e.g., ER visit, inpatient care) costs our insurer client **$2,673**. The current industry standard—flagging teens who use phones >5 hours/day—is reactive and fails to detect **34%** of high-risk cases.
 
