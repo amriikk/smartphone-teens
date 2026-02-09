@@ -26,7 +26,6 @@ def load_and_train_model():
     Loads data, trains the Random Forest model on the fly, and returns it.
     This function is cached so it only runs once per session.
     """
-    # CORRECTED PATH: Looking inside the 'data' folder
     file_path = 'data/teen_phone_addiction_dataset.csv'
     
     if not os.path.exists(file_path):
