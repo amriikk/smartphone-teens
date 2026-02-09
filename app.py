@@ -27,7 +27,7 @@ def load_and_train_model():
     """
     # Load dataset
     try:
-        df = pd.read_csv('teen_phone_addiction_dataset.csv')
+        df = pd.read_csv('.data/teen_phone_addiction_dataset.csv')
     except FileNotFoundError:
         return None, None
 
