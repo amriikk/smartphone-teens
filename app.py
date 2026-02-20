@@ -36,7 +36,7 @@ def load_and_train_model():
     # Target Definition (Crisis = Addiction Score > 9.5)
     df['High_Risk'] = np.where(df['Addiction_Level'] > 9.5, 1, 0)
     
-    # Feature Engineering (Replicating the Pipeline)
+    # Feature Engineering
     df['Usage_to_Sleep_Ratio'] = df['Daily_Usage_Hours'] / df['Sleep_Hours']
     df['Checks_per_App'] = df['Phone_Checks_Per_Day'] / df['Apps_Used_Daily']
     
@@ -155,4 +155,4 @@ with tab2:
             mime="text/html"
         )
     except FileNotFoundError:
-        st.warning("⚠️ Report file not found. Please ensure the HTML report is in the root or 'reports/' folder.")
+        st.warning("⚠️ Report file not found. Please ensure HTML report is in the root or 'reports/' folder.")
