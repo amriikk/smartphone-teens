@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Model Compounds Value Over Time</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #17877a;
+    --purple: #6c4fa3;
+    --bg: #f6f4f0;
+    --ink: #18181a;
+    --muted: #72717a;
+    --rule: #dddad4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 44px 50px 38px;
+    max-width: 860px;
+    width: 100%;
+    box-shadow: 0 2px 28px rgba(0,0,0,0.07);
+  }
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 21px;
+    line-height: 1.35;
+    color: var(--ink);
+    max-width: 600px;
+    margin-bottom: 8px;
+  }
+  h1 em { font-style: italic; color: var(--teal); }
+  .subtitle {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.55;
+    max-width: 560px;
+  }
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .leg-swatch { width: 14px; height: 14px; border-radius: 3px; }
+
+  /* CHART */
+  .chart-wrap { display: flex; }
+  .chart-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .above-area {
+    height: 210px;
+    display: flex;
+    align-items: flex-end;
+    border-left: 2px solid var(--ink);
+    position: relative;
+  }
+  .zero-line {
+    height: 2px;
+    background: var(--ink);
+    border-left: 2px solid var(--ink);
+  }
+  .below-area {
+    height: 160px;
+    display: flex;
+    align-items: flex-start;
+    border-left: 2px solid var(--ink);
+    position: relative;
+  }
+
+  .gl-wrap { position: absolute; inset: 0; pointer-events: none; }
+  .gl {
+    position: absolute; left: 0; right: 0;
+    border-top: 1px dashed #e4e1db;
+  }
+  .gl span {
+    position: absolute;
+    right: calc(100% + 7px);
+    font-size: 9px;
+    color: var(--muted);
+    transform: translateY(-50%);
+    white-space: nowrap;
+    text-align: right;
+    width: 54px;
+  }
+
+  .col-above {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 100%;
+    padding: 0 18px;
+  }
+  .col-below {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100%;
+    padding: 0 18px;
+  }
+
+  .bar-t {
+    width: 64px;
+    background: var(--teal);
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    height: 0;
+    transition: height 1s cubic-bezier(0.22,1,0.36,1);
+  }
+  .bar-p {
+    width: 64px;
+    background: var(--purple);
+    border-radius: 0 0 4px 4px;
+    position: relative;
+    height: 0;
+    transition: height 1s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  .bv-t {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .bv-p {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--purple);
+    white-space: nowrap;
+  }
+
+  /* callout */
+  .insight-callout {
+    position: absolute;
+    top: 14px;
+    right: 10px;
+    width: 210px;
+    background: #e6f4f2;
+    border-left: 3px solid var(--teal);
+    border-radius: 0 4px 4px 0;
+    padding: 10px 13px;
+    font-size: 10.5px;
+    line-height: 1.58;
+    color: #1a5c55;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.7s ease 1.3s, transform 0.7s ease 1.3s;
+  }
+  .insight-callout.visible { opacity: 1; transform: translateY(0); }
+  .insight-callout strong {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 5px;
+  }
+
+  /* x-axis */
+  .x-row { display: flex; margin-top: 34px; }
+  .x-lbl {
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+
+  /* annotations */
+  .ann-row {
+    display: flex;
+    gap: 14px;
+    margin-top: 30px;
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+  .ann { flex: 1; min-width: 150px; }
+  .ann-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 27px;
+    line-height: 1;
+  }
+  .ann-num.t { color: var(--teal); }
+  .ann-num.p { color: var(--purple); }
+  .ann-lbl {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.45;
+  }
+  .source {
+    font-size: 9px;
+    color: #c0bdb8;
+    margin-top: 18px;
+    letter-spacing: 0.03em;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="eyebrow">Section 3 &mdash; The "Aha!" Insight</div>
+  <h1>Every Year the Model Runs, Savings Compound<br><em>and More Teen Crises Are Stopped Before They Start</em></h1>
+  <p class="subtitle">Early detection reduces claims associated with acute behavioral interventions, counseling escalation, and academic remediation programs, generating over a million per year per 1,000 insured teens.</p>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="leg-swatch" style="background:var(--teal)"></div>
+      Cumulative net savings to insurer
+    </div>
+    <div class="legend-item">
+      <div class="leg-swatch" style="background:var(--purple)"></div>
+      Cumulative crises detected and prevented
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div style="width:60px;flex-shrink:0;"></div>
+    <div class="chart-main">
+
+      <div class="above-area" id="aboveArea">
+        <div class="gl-wrap" id="glA"></div>
+        <div class="col-above"><div class="bar-t" id="bt1"><span class="bv-t" id="bvt1"></span></div></div>
+        <div class="col-above"><div class="bar-t" id="bt2"><span class="bv-t" id="bvt2"></span></div></div>
+        <div class="col-above"><div class="bar-t" id="bt3"><span class="bv-t" id="bvt3"></span></div></div>
+      </div>
+
+      <div class="zero-line"></div>
+
+      <div class="below-area" id="belowArea">
+        <div class="gl-wrap" id="glB"></div>
+        <div class="col-below"><div class="bar-p" id="bp1"><span class="bv-p" id="bvp1"></span></div></div>
+        <div class="col-below"><div class="bar-p" id="bp2"><span class="bv-p" id="bvp2"></span></div></div>
+        <div class="col-below"><div class="bar-p" id="bp3"><span class="bv-p" id="bvp3"></span></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="x-row" style="margin-left:60px;">
+    <div class="x-lbl">Year 1</div>
+    <div class="x-lbl">Year 2</div>
+    <div class="x-lbl">Year 3</div>
+  </div>
+
+  <div class="ann-row">
+    <div class="ann">
+      <div class="ann-num t">$4.57M</div>
+      <div class="ann-lbl">Total three-year cumulative savings per 1,000 insured teens under the AI model</div>
+    </div>
+    <div class="ann">
+      <div class="ann-num t">+55%</div>
+      <div class="ann-lbl">Savings growth from Year 1 to Year 3 as recall improves through annual retraining</div>
+    </div>
+    <div class="ann">
+      <div class="ann-num p">2,760</div>
+      <div class="ann-lbl">Total crises detected and prevented across all three years per 1,000 insured teens</div>
+    </div>
+  </div>
+
+  <div class="source">Model: Random Forest, threshold = 0.40 | $2,673 crisis cost, $200 early intervention | Year 1 scaled from test-set (n=600, recall 92%). Years 2-3 assume annual retraining to 95% and 97% recall. Crises prevented = true positives per 1,000 teens per year, cumulated.</div>
+</div>
+
+<script>
+  var AH = 210;
+  var BH = 160;
+  var sav = [1200000, 2710000, 4570000];
+  var maxSav = 4570000;
+  var crises = [920, 1870, 2760];
+  var maxCrisis = 2760;
+
+  function fmtM(n) {
+    if (n >= 1000000) { return '$' + (n / 1000000).toFixed(2) + 'M'; }
+    return '$' + (n / 1000).toFixed(0) + 'K';
+  }
+  function fmtC(n) {
+    return n.toLocaleString() + ' teens';
+  }
+
+  // above gridlines
+  var glA = document.getElementById('glA');
+  [0.25, 0.5, 0.75, 1.0].forEach(function(t) {
+    var d = document.createElement('div');
+    d.className = 'gl';
+    d.style.bottom = (t * 100) + '%';
+    var s = document.createElement('span');
+    s.textContent = fmtM(maxSav * t);
+    d.appendChild(s);
+    glA.appendChild(d);
+  });
+
+  // below gridlines
+  var glB = document.getElementById('glB');
+  [0.33, 0.66, 1.0].forEach(function(t) {
+    var d = document.createElement('div');
+    d.className = 'gl';
+    d.style.top = (t * 100) + '%';
+    d.style.borderTopColor = '#dcd8f0';
+    var s = document.createElement('span');
+    s.style.color = '#9474cc';
+    s.textContent = Math.round(maxCrisis * t).toLocaleString() + ' teens';
+    d.appendChild(s);
+    glB.appendChild(d);
+  });
+
+  // animate everything
+  setTimeout(function() {
+
+    [1, 2, 3].forEach(function(yr, i) {
+      var delay = i * 0.18;
+
+      var bt = document.getElementById('bt' + yr);
+      bt.style.transitionDelay = delay + 's';
+      bt.style.height = Math.round((sav[i] / maxSav) * AH) + 'px';
+      document.getElementById('bvt' + yr).textContent = fmtM(sav[i]);
+
+      var bp = document.getElementById('bp' + yr);
+      bp.style.transitionDelay = (delay + 0.25) + 's';
+      bp.style.height = Math.round((crises[i] / maxCrisis) * BH) + 'px';
+      document.getElementById('bvp' + yr).textContent = fmtC(crises[i]);
+    });
+  }, 300);
+</script>
+</body>
+</html>
