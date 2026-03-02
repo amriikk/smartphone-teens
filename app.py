@@ -62,7 +62,8 @@ if model is None:
     st.stop()
 
 # --- 4. LAYOUT: TABS ---
-tab1, tab2 = st.tabs(["🚀 Risk Predictor (MVP)", "📊 Data Quality Report"])
+# We now have 3 tabs: The Tool, The Data Report, and The Executive Memo
+tab1, tab2, tab3 = st.tabs(["🚀 Risk Predictor (MVP)", "📊 Data Quality Report", "📈 Executive Pitch"])
 
 # ==========================================
 # TAB 1: THE PREDICTION TOOL
@@ -143,16 +144,66 @@ with tab2:
     try:
         with open(report_path, 'r', encoding='utf-8') as f:
             report_html = f.read()
-        
-        # Display HTML
         components.html(report_html, height=800, scrolling=True)
-        
-        # Download Button
-        st.download_button(
-            label="📄 Download Full Report",
-            data=report_html,
-            file_name="data_quality_report.html",
-            mime="text/html"
-        )
+        st.download_button(label="📄 Download Full Report", data=report_html, file_name="data_quality_report.html", mime="text/html")
     except FileNotFoundError:
         st.warning("⚠️ Report file not found. Please ensure the HTML report is in the root or 'reports/' folder.")
+
+
+# ==========================================
+# TAB 3: THE EXECUTIVE MEMO (INTERACTIVE)
+# ==========================================
+with tab3:
+    st.title("Deploying AI to Prevent Teen Mental Health Claims")
+    st.markdown("---")
+
+    # SECTION 1: STATUS QUO
+    st.header("1. The Status Quo: The Cost of Reactive Care")
+    colA, colB = st.columns([2, 1])
+    with colA:
+        st.write("""
+        Our current approach is fundamentally reactive. When a teenager reaches a clinical mental health crisis, the resulting inpatient and emergency care is incredibly expensive. 
+        
+        To mitigate this, our baseline strategy relies on a manual heuristic: the **"5-Hour Rule."** We flag teens who use their phones for more than five hours a day for a preventative wellness check.
+        """)
+    with colB:
+        st.error("**Cost of Doing Nothing**")
+        st.metric(label="Cost Per Crisis Episode", value="$2,673")
+        st.write("*The 5-Hour Rule misses over 25% of the high-risk population, exposing the business to preventable medical claims.*")
+    
+    st.markdown("---")
+
+    # SECTION 2: AI ADVANTAGE
+    st.header("2. The AI Advantage: Precision Prevention")
+    st.write("We developed a Random Forest model that moves beyond simple screen time. By analyzing complex patterns (sleep displacement, app switching), our model identifies risk *before* a crisis occurs.")
+    
+    # Embed Visual 1 (AI Advantage HTML)
+    try:
+        with open("ai_advantage.html", 'r', encoding='utf-8') as f:
+            components.html(f.read(), height=550)
+    except FileNotFoundError:
+        st.warning("⚠️ 'ai_advantage.html' not found. Please upload it to your repository.")
+
+    st.markdown("---")
+
+    # SECTION 3: AHA INSIGHT / COMPOUNDING
+    st.header("3. The 'Aha!' Insight: Compounding Savings")
+    st.write("When we audited the model, we realized the savings aren't just a one-time lift. By accurately capturing the 'Quietly Struggling' cohort, the early detection prevents counseling escalations and acute interventions, generating **over a million per year** per 1,000 insured teens.")
+    
+    # Embed Visual 2 (Aha Insight HTML)
+    try:
+        with open("aha_insight_chart.html", 'r', encoding='utf-8') as f:
+            components.html(f.read(), height=650)
+    except FileNotFoundError:
+        st.warning("⚠️ 'aha_insight_chart.html' not found. Please upload it to your repository.")
+
+    st.markdown("---")
+
+    # SECTION 4: RECOMMENDATION
+    st.header("4. Executive Recommendation: [DEPLOY]")
+    st.success("""
+    **Action Plan for Tomorrow:**
+    1. **Deploy the Predictive Dashboard:** Equip Wellness Coaches with the Risk Predictor MVP (Tab 1) to evaluate profiles in real-time.
+    2. **Automate Early Intervention (Grades 7-10):** Automatically trigger the $200 wellness check for younger teens crossing the 40% risk threshold.
+    3. **Implement the 'Senior Filter' (Grades 11-12):** Route flags for older students (who have naturally higher academic screen time) to a human coach for a 60-second review before contacting parents, protecting ROI without alienating families.
+    """)

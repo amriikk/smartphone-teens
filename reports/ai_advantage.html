@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Advantage: Precision Prevention Drives ROI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #17877a;
+    --purple: #6c4fa3;
+    --bg: #f6f4f0;
+    --ink: #18181a;
+    --muted: #72717a;
+    --rule: #dddad4;
+    --baseline: #b5b3ac; /* Warm grey to push baseline to the background */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 44px 50px 38px;
+    max-width: 860px;
+    width: 100%;
+    box-shadow: 0 2px 28px rgba(0,0,0,0.07);
+  }
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    line-height: 1.25;
+    color: var(--ink);
+    max-width: 650px;
+    margin-bottom: 12px;
+  }
+  h1 em { font-style: italic; color: var(--teal); }
+  .subtitle {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 36px;
+    line-height: 1.6;
+    max-width: 620px;
+  }
+  
+  /* CHART */
+  .chart-wrap { display: flex; margin-bottom: 10px; }
+  .chart-main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
+
+  .above-area {
+    height: 300px; /* Taller for the vertical bars */
+    display: flex;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--ink);
+    position: relative;
+    padding-bottom: 1px;
+  }
+
+  .gl-wrap { position: absolute; inset: 0; pointer-events: none; }
+  .gl {
+    position: absolute; left: 0; right: 0;
+    border-top: 1px dashed #e4e1db;
+  }
+  .gl span {
+    position: absolute;
+    right: calc(100% + 12px);
+    font-size: 10px;
+    color: var(--muted);
+    transform: translateY(-50%);
+    white-space: nowrap;
+    text-align: right;
+    width: 54px;
+    font-weight: 500;
+  }
+
+  .columns-wrap {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+  }
+  .col-above {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 100%;
+    width: 120px;
+    position: relative;
+  }
+
+  .bar-b {
+    width: 90px;
+    background: var(--baseline);
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    height: 0;
+    transition: height 1s cubic-bezier(0.22,1,0.36,1);
+  }
+  .bar-a {
+    width: 90px;
+    background: var(--teal);
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    height: 0;
+    transition: height 1s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  .bv-lbl {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.8s;
+  }
+  .bv-lbl.b { color: var(--baseline); }
+  .bv-lbl.a { color: var(--teal); }
+
+  /* Animated Lift Bracket */
+  .lift-bracket {
+    position: absolute;
+    left: 25%;
+    width: 50%;
+    height: 15px;
+    border-top: 2px solid var(--purple);
+    border-left: 2px solid var(--purple);
+    border-right: 2px solid var(--purple);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.6s ease 1.2s, transform 0.6s ease 1.2s;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+  }
+  .lift-bracket.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .lift-text {
+    position: absolute;
+    top: -12px;
+    background: #fff;
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--purple);
+  }
+
+  /* x-axis */
+  .x-row { 
+    display: flex; 
+    justify-content: space-evenly;
+    margin-top: 16px; 
+    margin-left: 60px;
+  }
+  .x-lbl {
+    width: 150px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .x-lbl span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 4px;
+  }
+
+  /* annotations */
+  .ann-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 40px;
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+    flex-wrap: wrap;
+  }
+  .ann { flex: 1; min-width: 150px; }
+  .ann-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .ann-num.b { color: var(--baseline); }
+  .ann-num.a { color: var(--teal); }
+  .ann-num.p { color: var(--purple); }
+  
+  .ann-lbl {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .source {
+    font-size: 9.5px;
+    color: #c0bdb8;
+    margin-top: 24px;
+    letter-spacing: 0.03em;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="eyebrow">Visual 2 &mdash; The AI Advantage</div>
+  <h1>Precision Prevention Drives ROI<br><em>AI Model Generates >2x More Value Than Baseline</em></h1>
+  <p class="subtitle">The historical "5-Hour Rule" leaves over a quarter of the high-risk population without support. By analyzing complex behavioral patterns, our Random Forest MVP successfully triggers low-cost interventions to prevent full-scale medical claims.</p>
+
+  <div class="chart-wrap">
+    <div style="width:70px;flex-shrink:0;"></div>
+    <div class="chart-main">
+
+      <div class="above-area" id="aboveArea">
+        <div class="gl-wrap" id="glA"></div>
+        
+        <div class="lift-bracket" id="liftBracket">
+          <div class="lift-text">+$618k Lift (ROI)</div>
+        </div>
+
+        <div class="columns-wrap">
+          <div class="col-above">
+            <div class="bar-b" id="bar1"><span class="bv-lbl b" id="bv1"></span></div>
+          </div>
+          <div class="col-above">
+            <div class="bar-a" id="bar2"><span class="bv-lbl a" id="bv2"></span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="x-row">
+    <div class="x-lbl">Status Quo<span>(Baseline 5-Hour Rule)</span></div>
+    <div class="x-lbl" style="color: var(--teal);">AI Model<span>(Proposed MVP)</span></div>
+  </div>
+
+  <div class="ann-row">
+    <div class="ann">
+      <div class="ann-num b">$573K</div>
+      <div class="ann-lbl">Net value recaptured relying on manual screen-time heuristics.</div>
+    </div>
+    <div class="ann">
+      <div class="ann-num a">$1.19M</div>
+      <div class="ann-lbl">Net value recaptured by the AI model analyzing multi-variable behavior.</div>
+    </div>
+    <div class="ann">
+      <div class="ann-num p">+$618K</div>
+      <div class="ann-lbl"><strong>Incremental ROI</strong> per 1,000 insured teens generated by shifting to AI.</div>
+    </div>
+  </div>
+
+  <div class="source">Model: Random Forest, tuned threshold = 0.40 | $2,673 crisis cost, $200 early intervention | Scaled to standardized 1,000-teen population context.</div>
+</div>
+
+<script>
+  // Chart Configuration
+  var maxH = 300; // pixels
+  var vals = [573000, 1190000];
+  var maxVal = 1300000; // Ceiling for gridlines
+
+  function fmtM(n) {
+    if (n >= 1000000) { return '$' + (n / 1000000).toFixed(2) + 'M'; }
+    return '$' + (n / 1000).toFixed(0) + 'K';
+  }
+
+  // Generate gridlines automatically
+  var glA = document.getElementById('glA');
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(function(t) {
+    if (t === 0) return; // skip 0 line
+    var d = document.createElement('div');
+    d.className = 'gl';
+    d.style.bottom = (t * 100) + '%';
+    var s = document.createElement('span');
+    s.textContent = fmtM(maxVal * t);
+    d.appendChild(s);
+    glA.appendChild(d);
+  });
+
+  // Calculate bracket position dynamically
+  var bracket = document.getElementById('liftBracket');
+  var bHeight1 = (vals[0] / maxVal) * 100;
+  var bHeight2 = (vals[1] / maxVal) * 100;
+  // Position bracket just above the taller bar
+  bracket.style.bottom = (bHeight2 + 4) + '%'; 
+  // Make bracket droop down to the shorter bar
+  bracket.style.borderLeftWidth = '0'; // Open on the left since it goes down to bar 1
+  bracket.style.height = (bHeight2 - bHeight1 - 5) + '%';
+  bracket.style.borderBottom = '2px solid var(--purple)';
+  bracket.style.borderTop = 'none';
+  bracket.style.borderLeft = '2px solid var(--purple)';
+  // Adjust bracket visually to sit perfectly between the bars
+  bracket.style.bottom = (bHeight1 + 1) + '%';
+
+  // Animate on load
+  setTimeout(function() {
+    // Bar 1 (Baseline)
+    var b1 = document.getElementById('bar1');
+    b1.style.height = ((vals[0] / maxVal) * maxH) + 'px';
+    var lbl1 = document.getElementById('bv1');
+    lbl1.textContent = '$573K';
+    lbl1.style.opacity = 1;
+
+    // Bar 2 (AI Model)
+    var b2 = document.getElementById('bar2');
+    b2.style.transitionDelay = '0.3s';
+    b2.style.height = ((vals[1] / maxVal) * maxH) + 'px';
+    var lbl2 = document.getElementById('bv2');
+    lbl2.textContent = '$1.19M';
+    lbl2.style.transitionDelay = '1.1s';
+    lbl2.style.opacity = 1;
+
+    // Reveal Bracket
+    bracket.classList.add('visible');
+  }, 200);
+</script>
+</body>
+</html>
