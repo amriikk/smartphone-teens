@@ -157,10 +157,6 @@ with tab3:
     st.title("Deploying AI to Prevent Teen Mental Health Claims")
     st.markdown("---")
 
-    # Get the absolute path to the folder where app.py lives
-    import os
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
     # SECTION 1: STATUS QUO
     st.header("1. The Status Quo: The Cost of Reactive Care")
     colA, colB = st.columns([2, 1])
@@ -181,13 +177,12 @@ with tab3:
     st.header("2. The AI Advantage: Precision Prevention")
     st.write("We developed a Random Forest model that moves beyond simple screen time. By analyzing complex patterns (sleep displacement, app switching), our model identifies risk *before* a crisis occurs.")
     
-    # Embed Visual 1 (Bulletproof Path)
-    ai_adv_path = os.path.join(current_dir, "ai_advantage.html")
+    # Embed Visual 1 (AI Advantage HTML)
     try:
-        with open(ai_adv_path, 'r', encoding='utf-8') as f:
-            components.html(f.read(), height=600, scrolling=False)
+        with open("reports/ai_advantage.html", 'r', encoding='utf-8') as f:
+            components.html(f.read(), height=550)
     except FileNotFoundError:
-        st.warning(f"⚠️ 'ai_advantage.html' not found at: {ai_adv_path}")
+        st.warning("⚠️ 'ai_advantage.html' not found. Please upload it to your repository.")
 
     st.markdown("---")
 
@@ -195,13 +190,12 @@ with tab3:
     st.header("3. The 'Aha!' Insight: Compounding Savings")
     st.write("When we audited the model, we realized the savings aren't just a one-time lift. By accurately capturing the 'Quietly Struggling' cohort, the early detection prevents counseling escalations and acute interventions, generating **over a million per year** per 1,000 insured teens.")
     
-    # Embed Visual 2 (Bulletproof Path)
-    aha_path = os.path.join(current_dir, "aha_insight_chart.html")
+    # Embed Visual 2 (Aha Insight HTML)
     try:
-        with open(aha_path, 'r', encoding='utf-8') as f:
-            components.html(f.read(), height=650, scrolling=False)
+        with open("reports/aha_insight_chart.html", 'r', encoding='utf-8') as f:
+            components.html(f.read(), height=650)
     except FileNotFoundError:
-        st.warning(f"⚠️ 'aha_insight_chart.html' not found at: {aha_path}")
+        st.warning("⚠️ 'aha_insight_chart.html' not found. Please upload it to your repository.")
 
     st.markdown("---")
 
