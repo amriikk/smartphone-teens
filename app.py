@@ -179,7 +179,7 @@ with tab3:
     
     # Embed Visual 1 (AI Advantage HTML)
     try:
-        with open("ai_advantage.html", 'r', encoding='utf-8') as f:
+        with open("/reports/ai_advantage.html", 'r', encoding='utf-8') as f:
             components.html(f.read(), height=550)
     except FileNotFoundError:
         st.warning("⚠️ 'ai_advantage.html' not found. Please upload it to your repository.")
@@ -192,7 +192,7 @@ with tab3:
     
     # Embed Visual 2 (Aha Insight HTML)
     try:
-        with open("aha_insight_chart.html", 'r', encoding='utf-8') as f:
+        with open("/reports/aha_insight_chart.html", 'r', encoding='utf-8') as f:
             components.html(f.read(), height=650)
     except FileNotFoundError:
         st.warning("⚠️ 'aha_insight_chart.html' not found. Please upload it to your repository.")
