@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heuristics are Not Risk Predictors</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #17877a;
+    --purple: #6c4fa3;
+    --bg: #f6f4f0;
+    --ink: #18181a;
+    --muted: #72717a;
+    --rule: #dddad4;
+    --baseline: #b5b3ac; 
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 44px 50px 38px;
+    max-width: 860px;
+    width: 100%;
+    box-shadow: 0 2px 28px rgba(0,0,0,0.07);
+  }
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    line-height: 1.25;
+    color: var(--ink);
+    max-width: 700px;
+    margin-bottom: 12px;
+  }
+  h1 em { font-style: italic; color: var(--teal); }
+  .subtitle {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 30px;
+    line-height: 1.6;
+    max-width: 680px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .leg-swatch { width: 12px; height: 12px; border-radius: 50%; }
+
+  /* SCATTER PLOT AREA */
+  .chart-wrap {
+    display: flex;
+    margin-bottom: 10px;
+    height: 320px;
+  }
+  
+  .y-axis {
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-right: 12px;
+    padding-bottom: 20px; /* offset for x axis height */
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 500;
+  }
+  
+  .chart-main {
+    flex: 1;
+    position: relative;
+    border-left: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 20px;
+  }
+
+  /* Threshold Lines */
+  .threshold-y {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 10%; /* 9 out of 10 */
+    border-top: 1.5px dashed var(--rule);
+    z-index: 1;
+  }
+  .threshold-x {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 41.66%; /* 5 hours out of 12 max */
+    border-left: 1.5px dashed var(--rule);
+    z-index: 1;
+  }
+  
+  .thresh-lbl {
+    position: absolute;
+    font-size: 10px;
+    color: var(--muted);
+    background: #fff;
+    padding: 2px 4px;
+    font-weight: 500;
+  }
+
+  /* Highlight Box (The Knaflic focus area) */
+  .highlight-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 41.66%;
+    height: 10%;
+    background: rgba(108, 79, 163, 0.08); /* Faded purple */
+    border: 1px solid var(--purple);
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 1s ease 1.5s;
+  }
+  .highlight-box.visible { opacity: 1; }
+
+  .insight-callout {
+    position: absolute;
+    top: -15px;
+    left: 44%;
+    background: #fff;
+    border-left: 3px solid var(--purple);
+    padding: 10px 14px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--ink);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    z-index: 10;
+    width: 240px;
+    border-radius: 0 4px 4px 0;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.8s ease 2s, transform 0.8s ease 2s;
+  }
+  .insight-callout.visible { opacity: 1; transform: translateX(0); }
+  .insight-callout strong {
+    display: block;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  /* Dots */
+  .dot {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, 50%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .dot.safe {
+    background: var(--baseline);
+    width: 7px;
+    height: 7px;
+    z-index: 3;
+  }
+  .dot.risk {
+    background: var(--purple);
+    width: 10px;
+    height: 10px;
+    border: 1px solid #fff;
+    z-index: 4;
+  }
+
+  /* X Axis */
+  .x-axis {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 40px;
+    padding-top: 8px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .axis-title {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .y-axis-title {
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: rotate(-90deg) translateX(50%);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Annotations */
+  .ann-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 30px;
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+    flex-wrap: wrap;
+  }
+  .ann { flex: 1; min-width: 150px; }
+  .ann-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .ann-num.p { color: var(--purple); }
+  .ann-num.b { color: var(--baseline); }
+  
+  .ann-lbl {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="eyebrow">Section 1 &mdash; The Baseline Failure</div>
+  <h1>Heuristics are Not Risk Predictors<br><em>The 5-Hour Rule Misses Critical Crisis Events</em></h1>
+  <p class="subtitle">Over 10% of teens with severe addiction levels fall below the traditional 5-hour cutoff. Relying strictly on volume (hours) leaves a highly vulnerable, hyper-fragmented cohort completely invisible to the insurer.</p>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="leg-swatch" style="background:var(--baseline)"></div>
+      Low/Moderate Addiction
+    </div>
+    <div class="legend-item">
+      <div class="leg-swatch" style="background:var(--purple); border: 1px solid #fff; width:14px; height:14px;"></div>
+      Crisis Addiction (Target)
+    </div>
+  </div>
+
+  <div style="position: relative;">
+    <div class="y-axis-title">Addiction Level Score</div>
+    <div class="chart-wrap">
+      <div class="y-axis">
+        <span>10</span>
+        <span>8</span>
+        <span>6</span>
+        <span>4</span>
+        <span>2</span>
+        <span>0</span>
+      </div>
+      
+      <div class="chart-main" id="chartMain">
+        <div class="threshold-y"><span class="thresh-lbl" style="right: 5px; top: -18px;">Crisis Cutoff (9.0)</span></div>
+        <div class="threshold-x"><span class="thresh-lbl" style="right: -65px; bottom: 5px;">5-Hour Rule</span></div>
+        
+        <div class="highlight-box" id="hBox"></div>
+        <div class="insight-callout" id="callout">
+          <strong>Invisible to Insurer</strong>
+          High Crisis Risk cohort missed entirely by the 5-Hour Rule. This group exhibits high fragmentation (checking) despite lower total hours.
+        </div>
+      </div>
+    </div>
+    
+    <div class="x-axis">
+      <span>0h</span>
+      <span>2h</span>
+      <span>4h</span>
+      <span>6h</span>
+      <span>8h</span>
+      <span>10h</span>
+      <span>12h</span>
+    </div>
+    <div class="axis-title">Daily Usage Hours</div>
+  </div>
+
+  <div class="ann-row">
+    <div class="ann">
+      <div class="ann-num b">72%</div>
+      <div class="ann-lbl">Detection rate of the legacy 5-Hour Rule heuristic.</div>
+    </div>
+    <div class="ann">
+      <div class="ann-num p">28%</div>
+      <div class="ann-lbl">Of all crisis-level teens are missed by the current baseline metric.</div>
+    </div>
+    <div class="ann">
+      <div class="ann-num p">10.4%</div>
+      <div class="ann-lbl"><strong>The Invisible Cohort:</strong> Teens exhibiting severe addiction levels under 5 hours.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Configuration
+  const chart = document.getElementById('chartMain');
+  const maxX = 12; // 12 hours
+  const maxY = 10; // 10 score
+
+  // Function to create a dot
+  function createDot(x, y, isRisk, delay) {
+    const dot = document.createElement('div');
+    dot.className = `dot ${isRisk ? 'risk' : 'safe'}`;
+    
+    // Calculate percentages
+    const leftPct = (x / maxX) * 100;
+    const bottomPct = (y / maxY) * 100;
+    
+    dot.style.left = `${leftPct}%`;
+    dot.style.bottom = `${bottomPct}%`;
+    
+    chart.appendChild(dot);
+    
+    // Animate in
+    setTimeout(() => {
+      dot.style.opacity = 1;
+    }, delay);
+  }
+
+  // Generate realistic looking scatter data
+  const numPoints = 180;
+  
+  for(let i=0; i<numPoints; i++) {
+    let x, y, isRisk;
+    
+    // Determine which cluster to generate a point in to tell the story
+    const rand = Math.random();
+    
+    if (rand < 0.50) {
+      // Cluster 1: Safe, under 5 hours (Bulk of users)
+      x = 0.5 + Math.random() * 4.4;
+      y = 1 + Math.random() * 6.5;
+      isRisk = false;
+    } else if (rand < 0.75) {
+      // Cluster 2: Safe, over 5 hours (Heavy academic/entertainment)
+      x = 5.2 + Math.random() * 5;
+      y = 3 + Math.random() * 5.8;
+      isRisk = false;
+    } else if (rand < 0.90) {
+      // Cluster 3: Risk, over 5 hours (Expected addiction)
+      x = 5.5 + Math.random() * 6;
+      y = 9 + Math.random() * 1; // 9 to 10
+      isRisk = true;
+    } else {
+      // Cluster 4: The INVISIBLE COHORT (Risk, under 5 hours)
+      x = 1.5 + Math.random() * 3.3; // 1.5 to 4.8 hours
+      y = 9 + Math.random() * 1; // 9 to 10
+      isRisk = true;
+    }
+    
+    // Stagger the animation of the dots drawing
+    const delay = Math.random() * 1200; 
+    createDot(x, y, isRisk, delay);
+  }
+
+  // Trigger the highlighting animations after dots have loaded
+  setTimeout(() => {
+    document.getElementById('hBox').classList.add('visible');
+    document.getElementById('callout').classList.add('visible');
+  }, 100);
+</script>
+</body>
+</html>

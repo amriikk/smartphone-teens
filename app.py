@@ -1,4 +1,7 @@
 import streamlit as st
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+from pywaffle import Waffle
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -169,8 +172,38 @@ with tab3:
     with colB:
         st.error("**Cost of Doing Nothing**")
         st.metric(label="Cost Per Crisis Episode", value="$2,673")
-        st.write("*The 5-Hour Rule misses over 25% of the high-risk population, exposing the business to preventable medical claims.*")
+        st.write("*The 5-Hour Rule misses **34%** of the high-risk population, exposing the business to preventable medical claims.*")
     
+    # --- WAFFLE CHART VISUAL (THE BLIND SPOT) ---
+    st.write("") # Spacer
+    
+    # Data synced to the 66/34 split narrative
+    data = {'Caught by 5-Hour Rule': 66, 'The Blind Spot (Missed)': 34}
+    
+    fig = plt.figure(
+        FigureClass=Waffle,
+        rows=10,
+        columns=10,
+        values=data,
+        colors=["#BEBEBE", "#47337D"], # Deck Gray and Deck Purple
+        legend={
+            'loc': 'lower center',
+            'bbox_to_anchor': (0.5, -0.15),
+            'ncol': 2,
+            'frameon': False,
+            'fontsize': 12
+        },
+        figsize=(7, 7)
+    )
+    
+    # The massive, bold callout
+    fig.suptitle('The 34% Blind Spot', fontsize=22, fontweight='bold', color='#1A1A1A', y=1.02)
+    fig.text(0.5, 0.94, '1 in 3 at-risk teens are completely missed by the 5-Hour Rule.', 
+             fontsize=14, color='#47337D', ha='center', fontweight='bold')
+
+    # Render natively in Streamlit
+    st.pyplot(fig)
+
     st.markdown("---")
 
     # SECTION 2: AI ADVANTAGE
